@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
+</p>
+
 # PixelRoot32 Sprite Compiler (`pr32-sprite-compiler`)
 
-`pr32-sprite-compiler.py` is a Python command-line tool that converts a **PNG sprite sheet** into a C header file (`.h`) compatible with the **PixelRoot32** engine.
+`pr32-sprite-compiler.py` is a Python command-line tool that converts a **PNG sprite sheet** into a C header file (`.h`) compatible with the **PixelRoot32** engine. A small GUI wrapper (`pr32-sprite-compiler-gui.py`) is included so you can use the tool without typing commands in a terminal.
 
 For every defined sprite it generates one or more arrays:
 
@@ -20,16 +24,14 @@ For the engine that consumes these headers, see the PixelRoot32 Game Engine repo
 
 - **Python**
   - Recommended minimum: **Python 3.8+**
-  - Tested with Python 3.x on:
-    - Windows 10/11
-    - macOS
-    - Linux
+  - Developed and tested with Python 3.x on **Windows 10/11**.
 
 - **Dependencies**
   - [Pillow](https://python-pillow.org/) (PIL fork)
 
 - **Supported operating systems**
   - Any OS with Python 3.x and Pillow installed.
+  - The tool should also run on Linux/macOS, but this path is currently considered **experimental** and may require additional setup or tweaks.
   - Examples and notes focus on **Windows / PowerShell**.
 
 ---
@@ -39,7 +41,7 @@ For the engine that consumes these headers, see the PixelRoot32 Game Engine repo
 ### 2.1 Install Python
 
 1. Download Python from:
-   - https://www.python.org/downloads/
+   - [python.org](https://www.python.org/downloads/)
 2. During installation on Windows:
    - Check **"Add Python to PATH"**.
 
@@ -85,9 +87,78 @@ Pillow OK
 
 ---
 
-## 3. Basic usage
+## 3. Usage
 
-### 3.1 General syntax
+### 3.1 GUI (recommended)
+
+For most users (artists, technical designers), the GUI is the easiest way to use the compiler. It is a thin wrapper around `pr32-sprite-compiler.py` and internally calls the same script with the same parameters.
+
+#### 3.1.1 Launching the GUI
+
+- From a terminal in this folder:
+
+  ```bash
+  python pr32-sprite-compiler-gui.py
+  ```
+
+  On Windows you can also double‑click the file if `.py` files are associated with Python, but running from a terminal lets you see any startup errors.
+
+#### 3.1.2 Fields and workflow
+
+The window contains:
+
+- **Input PNG**  
+  - Click **Browse...** and select your sprite sheet (`.png`).
+
+- **Grid (WxH)**  
+  - Same meaning as `--grid` in the CLI.  
+  - Enter the sprite cell size in pixels, e.g. `16x32`.
+
+- **Sprite count (per row)**  
+  - Optional helper for auto‑detection.  
+  - If you know how many sprites there are in the first row, enter it here (e.g. `9`).
+
+- **Offset (X,Y)**  
+  - Same as `--offset` in the CLI.  
+  - Use this if the first row of sprites is not at the very top of the image (e.g. `0,10`).
+
+- **Output .h**  
+  - Target header file name (e.g. `sprites_player.h`).  
+  - Use **Browse...** to pick a location.
+
+- **Auto-detect**  
+  - After filling **Input PNG**, optionally **Sprite count (per row)**, and **Output .h**, click **Auto-detect**.  
+  - The GUI analyzes the image and tries to:
+    - Infer a suitable grid size.
+    - Detect the vertical offset.
+    - Populate the sprite list with one sprite per cell in the first row.
+  - You can then correct any values manually.
+
+- **Sprites (gx, gy, gw, gh)**  
+  - List of sprite definitions in grid units (same meaning as the CLI `--sprite` options).  
+  - Use the small form on the right to:
+    - **Add / Update** a sprite.
+    - **Remove** the selected sprite.
+    - **Clear** the list.
+
+- **Compile**  
+  - Runs `pr32-sprite-compiler.py` with the parameters defined in the GUI.  
+  - The button is disabled while compilation is in progress and re‑enabled when it finishes.
+
+- **Log**  
+  - Shows:
+    - The exact command used to call `pr32-sprite-compiler.py`.
+    - Progress and output produced by the script (streamed while it runs).
+    - Messages from **Auto-detect**.  
+  - The log is **not cleared** between operations, so you can see the history of actions.
+
+If something goes wrong (missing file, invalid grid, etc.), the GUI shows an error dialog and logs the details in the log area.
+
+### 3.2 Command-line usage (optional)
+
+The command-line interface is useful for automation, scripting, or integration into build pipelines. It is optional; the GUI is the recommended entry point for manual usage.
+
+#### 3.2.1 General syntax
 
 ```bash
 python pr32-sprite-compiler.py INPUT.png \
@@ -111,7 +182,7 @@ python .\pr32-sprite-compiler.py `
   --out sprites_player.h
 ```
 
-### 3.2 Parameters
+#### 3.2.2 Parameters
 
 - **`INPUT.png` (positional)**  
   Path to the PNG sprite sheet.
@@ -144,7 +215,7 @@ python .\pr32-sprite-compiler.py `
   Default: `sprites.h`.  
   The script writes the file directly → **do not use shell redirection `>`**.
 
-### 3.3 Full example
+#### 3.2.3 Full example
 
 Sprite sheet with 9 frames (144×32), sprites of 16×32, first row shifted 10 pixels down:
 
@@ -393,3 +464,50 @@ typedef struct {
   - Validate that sprite parameters make sense for your game design.
 
 The goal is to be a **purely mechanical** stage: convert pixels into bitfields stored in `uint16_t` arrays, ready to be consumed by PixelRoot32 and your own engine tooling.
+
+---
+
+## 8. Building standalone executables
+
+You can bundle the GUI into a standalone binary (no Python installation required) using [PyInstaller](https://pyinstaller.org/).
+
+### 8.1 Prerequisites
+
+- Python 3.8+ installed.
+- PyInstaller:
+
+  ```bash
+  pip install pyinstaller
+  ```
+
+### 8.2 Windows `.exe`
+
+From the project root (where [pr32-sprite-compiler-gui.py](pr32-sprite-compiler-gui.py) and [pr32-sprite-compiler.py](pr32-sprite-compiler.py) live), run:
+
+```powershell
+pyinstaller --noconsole --onefile --add-data "pr32-sprite-compiler.py;." pr32-sprite-compiler-gui.py
+```
+
+Notes:
+
+- `--onefile` produces a single `pr32-sprite-compiler-gui.exe`.
+- `--noconsole` hides the console window (GUI only).
+- `--add-data "pr32-sprite-compiler.py;."` embeds the CLI script inside the binary.
+
+The resulting executable will be located at:
+
+- `dist\pr32-sprite-compiler-gui.exe`
+
+You can distribute this file as a binary release or commit it under a `bin/` directory if you wish.
+
+### 8.3 Linux / macOS binary
+
+The same approach works on Linux/macOS, but the `--add-data` separator changes from `;` to `:`:
+
+```bash
+pyinstaller --noconsole --onefile --add-data "pr32-sprite-compiler.py:." pr32-sprite-compiler-gui.py
+```
+
+The resulting binary will be placed in the `dist/` folder (e.g. `dist/pr32-sprite-compiler-gui`).
+
+> The GUI has been written to work both as a plain Python script and as a PyInstaller-frozen executable. At runtime it automatically locates and executes `pr32-sprite-compiler.py` from the bundled files.
