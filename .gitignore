@@ -13,5 +13,10 @@ venv/
 
 *.log
 
-*.h
-*.png
+# PyInstaller build artifacts
+/build/
+/dist/
+/*.spec
+
+# Optional: generated sprite headers (uncomment if you do NOT want them tracked)
+# sprites_*.h

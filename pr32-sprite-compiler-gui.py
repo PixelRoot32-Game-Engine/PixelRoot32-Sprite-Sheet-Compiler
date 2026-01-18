@@ -1,8 +1,9 @@
-import subprocess
 import sys
 from pathlib import Path
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
+import threading
+import io
 
 from PIL import Image
 
@@ -19,7 +20,8 @@ class SpriteCompilerGUI:
         self.output_path_var = tk.StringVar(value="sprites.h")
 
         self.sprite_entries = []
-        self._current_process = None
+        # No longer using subprocess, so no _current_process needed
+        # self._current_process = None
 
         self._build_layout()
 
@@ -366,91 +368,112 @@ class SpriteCompilerGUI:
         if not self._validate_inputs():
             return
 
-        script_path = Path(__file__).with_name("pr32-sprite-compiler.py")
+        # Locate the script, handling PyInstaller frozen state
+        if getattr(sys, "frozen", False):
+            # If frozen, the script should be in the temp folder (sys._MEIPASS)
+            base_path = Path(sys._MEIPASS)
+        else:
+            # If normal script, look in the same directory
+            base_path = Path(__file__).parent
+
+        script_path = base_path / "pr32-sprite-compiler.py"
+
         if not script_path.is_file():
             messagebox.showerror(
                 "Script not found",
-                f"Could not find pr32-sprite-compiler.py next to this GUI.\n\nExpected at:\n{script_path}",
+                f"Could not find pr32-sprite-compiler.py.\n\nExpected at:\n{script_path}",
             )
             return
 
-        cmd = [
-            sys.executable,
-            str(script_path),
-            self.input_path_var.get(),
-            "--grid",
-            self.grid_var.get().strip(),
-        ]
+        # Build arguments for the script
+        # Note: sys.argv[0] will be the script name passed to the executed code
+        args = [str(script_path), self.input_path_var.get()]
+
+        args.extend(["--grid", self.grid_var.get().strip()])
 
         offset_value = self.offset_var.get().strip()
         if offset_value:
-            cmd.extend(["--offset", offset_value])
+            args.extend(["--offset", offset_value])
 
         for spec in self.sprite_entries:
-            cmd.extend(["--sprite", spec])
+            args.extend(["--sprite", spec])
 
-        cmd.extend(["--out", self.output_path_var.get().strip()])
+        args.extend(["--out", self.output_path_var.get().strip()])
 
         self.compile_button.configure(state="disabled")
         self.root.update_idletasks()
 
         self.log_text.insert(tk.END, "Starting compilation...\n")
-        self.log_text.insert(tk.END, "Command: " + " ".join(cmd) + "\n")
+        self.log_text.insert(tk.END, "Args: " + " ".join(args) + "\n")
         self.log_text.see(tk.END)
 
+        # Run compilation in a separate thread to avoid freezing GUI
+        threading.Thread(
+            target=self._execute_script_in_thread, args=(script_path, args), daemon=True
+        ).start()
+
+    def _execute_script_in_thread(self, script_path: Path, args: list) -> None:
+        output_buffer = io.StringIO()
+        
+        # Capture stdout/stderr and override argv
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
+        original_argv = sys.argv
+        
+        sys.stdout = output_buffer
+        sys.stderr = output_buffer
+        sys.argv = args
+
+        return_code = 0
         try:
-            self._current_process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                bufsize=1,
-            )
-        except OSError as exc:
-            self.compile_button.configure(state="normal")
-            self._current_process = None
-            messagebox.showerror("Execution error", str(exc))
-            return
+            with open(script_path, "r", encoding="utf-8") as f:
+                code = compile(f.read(), str(script_path), "exec")
+            
+            # Create a clean global context
+            global_context = {"__name__": "__main__", "__file__": str(script_path)}
+            
+            # Execute the script
+            exec(code, global_context)
+            
+        except SystemExit as e:
+            # The script called sys.exit()
+            if isinstance(e.code, int):
+                return_code = e.code
+            elif e.code is None:
+                return_code = 0
+            else:
+                return_code = 1
+                print(f"Exit: {e.code}") # goes to buffer
+        except Exception:
+            import traceback
+            traceback.print_exc() # goes to buffer
+            return_code = 1
+        finally:
+            # Restore original streams
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
+            sys.argv = original_argv
 
-        self._poll_process_output()
+        # Update GUI in the main thread
+        self.root.after(
+            0, self._on_compilation_finished, output_buffer.getvalue(), return_code
+        )
 
-    def _poll_process_output(self) -> None:
-        process = self._current_process
-        if process is None:
-            return
-
-        stdout = process.stdout
-        stderr = process.stderr
-
-        if stdout:
-            line = stdout.readline()
-            while line:
-                self.log_text.insert(tk.END, line)
-                self.log_text.see(tk.END)
-                line = stdout.readline()
-
-        if stderr:
-            line_err = stderr.readline()
-            while line_err:
-                self.log_text.insert(tk.END, line_err)
-                self.log_text.see(tk.END)
-                line_err = stderr.readline()
-
-        if process.poll() is None:
-            self.root.after(100, self._poll_process_output)
-            return
-
-        rc = process.returncode
-        self._current_process = None
+    def _on_compilation_finished(self, output: str, return_code: int) -> None:
+        self.log_text.insert(tk.END, output)
+        self.log_text.see(tk.END)
+        
         self.compile_button.configure(state="normal")
 
-        if rc == 0:
+        if return_code == 0:
             messagebox.showinfo("Done", "Compilation finished successfully.")
         else:
             messagebox.showerror(
                 "Compiler error",
-                f"pr32-sprite-compiler exited with code {rc}.",
+                f"pr32-sprite-compiler exited with code {return_code}.\nSee log for details.",
             )
+
+    # Removed _poll_process_output as we now use threading/exec
 
 
 def main() -> None:
