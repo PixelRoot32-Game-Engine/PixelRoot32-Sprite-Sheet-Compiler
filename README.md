@@ -543,3 +543,10 @@ pyinstaller --noconsole --onefile --add-data "pr32-sprite-compiler.py:." pr32-sp
 The resulting binary will be placed in the `dist/` folder (e.g. `dist/pr32-sprite-compiler-gui`).
 
 > The GUI has been written to work both as a plain Python script and as a PyInstaller-frozen executable. At runtime it automatically locates and executes `pr32-sprite-compiler.py` from the bundled files.
+
+---
+
+## License
+PixelRoot32 Sprite Compiler is **open-source** under the **MIT License**.
+
+---
