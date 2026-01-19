@@ -87,12 +87,24 @@ class SpriteCompilerGUI:
             row=0, column=1, padx=5
         )
 
-        autodetect_frame = ttk.Frame(main)
-        autodetect_frame.grid(row=5, column=0, columnspan=3, sticky="ew", pady=(2, 0))
-        autodetect_frame.columnconfigure(0, weight=1)
+        options_frame = ttk.Frame(main)
+        options_frame.grid(row=5, column=0, columnspan=3, sticky="ew", pady=(5, 0))
+        options_frame.columnconfigure(2, weight=1)
+
+        ttk.Label(options_frame, text="Export Mode:").grid(row=0, column=0, sticky="w")
+        self.mode_var = tk.StringVar(value="layered")
+        mode_combo = ttk.Combobox(
+            options_frame, 
+            textvariable=self.mode_var, 
+            values=["layered", "2bpp", "4bpp"], 
+            state="readonly", 
+            width=10
+        )
+        mode_combo.grid(row=0, column=1, sticky="w", padx=5)
+
         ttk.Button(
-            autodetect_frame, text="Auto-detect", command=self._auto_detect_clicked
-        ).grid(row=0, column=0, sticky="e")
+            options_frame, text="Auto-detect", command=self._auto_detect_clicked
+        ).grid(row=0, column=3, sticky="e")
 
         ttk.Label(main, text="Sprites (gx, gy, gw, gh):").grid(
             row=6, column=0, columnspan=3, sticky="w", pady=(10, 2)
@@ -488,6 +500,8 @@ class SpriteCompilerGUI:
             args.extend(["--sprite", spec])
 
         args.extend(["--out", self.output_path_var.get().strip()])
+
+        args.extend(["--mode", self.mode_var.get()])
 
         self.compile_button.configure(state="disabled")
         self.root.update_idletasks()
