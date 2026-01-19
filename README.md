@@ -219,6 +219,7 @@ python .\pr32-sprite-compiler.py `
 
 Sprite sheet with 9 frames (144×32), sprites of 16×32, first row shifted 10 pixels down:
 
+
 ```powershell
 python .\pr32-sprite-compiler.py `
   assets\player_sprites.png `
@@ -238,8 +239,9 @@ python .\pr32-sprite-compiler.py `
 
 ---
 
-## 4. Sprite definition
+## 4. Sprite definition and Constraints
 
+### 4.1 Grid and Coordinates
 The sprite sheet is conceptually divided into a grid of cells of size `WxH` pixels (`--grid`).
 
 - The position `(gx, gy)` is expressed in **grid cells**.
@@ -266,6 +268,18 @@ The offset (`--offset X,Y`) is applied in **pixels** before converting to grid c
 real_x = offset_x + gx * grid_w
 real_y = offset_y + gy * grid_h
 ```
+
+### 4.2 Constraints and Recommendations
+
+- **Max Layers (Performance Warning)**:
+  - **Main Characters**: Do not exceed **4 layers**.
+  - **Common Enemies/Objects**: Keep it under **2 layers**.
+  - **Why?**: Although the engine technically supports up to 255 layers, rendering each layer involves a separate pass. Exceeding these limits can significantly drop the frame rate on standard ESP32 hardware.
+  - **Alternative**: If you need more than 4 colors, consider using **4bpp packed sprites** (if supported by your engine version) instead of stacking many 1bpp layers, as it draws the final pixel in a single pass.
+
+- **Palette**: It is strongly recommended to use the **official PixelRoot32 palette** to ensure visual consistency and optimal rendering.
+  - Palette file: `assets/pixelroot32_palette.png`
+  - Colors outside this palette will still be compiled, but they might not blend correctly with other engine assets.
 
 ---
 

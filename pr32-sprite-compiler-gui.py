@@ -20,10 +20,27 @@ class SpriteCompilerGUI:
         self.output_path_var = tk.StringVar(value="sprites.h")
 
         self.sprite_entries = []
-        # No longer using subprocess, so no _current_process needed
-        # self._current_process = None
+        # No longer using subprocess, so no# self._current_process = None
 
+        self._set_window_icon()
         self._build_layout()
+
+    def _set_window_icon(self) -> None:
+        """Loads and sets the window icon, handling both dev and frozen environments."""
+        try:
+            if getattr(sys, "frozen", False):
+                base_path = Path(sys._MEIPASS)
+            else:
+                base_path = Path(__file__).parent
+            
+            # Look for the icon in assets folder
+            icon_path = base_path / "assets" / "pr32_logo.png"
+            
+            if icon_path.exists():
+                icon_img = tk.PhotoImage(file=str(icon_path))
+                self.root.iconphoto(False, icon_img)
+        except Exception as e:
+            print(f"Warning: Could not load icon: {e}")
 
     def _build_layout(self) -> None:
         main = ttk.Frame(self.root, padding=10)
@@ -193,6 +210,23 @@ class SpriteCompilerGUI:
             messagebox.showwarning("Analysis failed", f"Could not analyze image:\n{exc}")
             return
 
+        # Check for color/layer count warning
+        pixels = img.load()
+        colors = set()
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = pixels[x, y]
+                if a > 0:
+                    colors.add((r, g, b))
+        
+        if len(colors) > 4:
+            messagebox.showwarning(
+                "Performance Warning",
+                f"Detected {len(colors)} unique colors (layers).\n\n"
+                "Using more than 4 layers for main characters may degrade performance on ESP32.\n"
+                "Consider using 4bpp packed sprites for higher color counts."
+            )
+
         bbox = img.getbbox()
         if not bbox:
             return
@@ -240,21 +274,76 @@ class SpriteCompilerGUI:
 
             columns = max(1, width // grid_w)
 
-        grid_h = height
+        grid_h = grid_w
+        rows = max(1, height // grid_h)
+
+        row_occupied = []
+        for gy in range(rows):
+            y0 = top + gy * grid_h
+            y1 = min(y0 + grid_h, bottom)
+            occupied = False
+            for y in range(y0, y1):
+                for x in range(left, right):
+                    r, g, b, a = pixels[x, y]
+                    if a > 0:
+                        occupied = True
+                        break
+                if occupied:
+                    break
+            row_occupied.append(occupied)
+
+        max_occ_row = -1
+        for i, occ in enumerate(row_occupied):
+            if occ:
+                max_occ_row = i
 
         self.grid_var.set(f"{grid_w}x{grid_h}")
         self.offset_var.set(f"{left},{top}")
 
         self._clear_sprites()
 
-        for gx in range(columns):
-            spec = f"{gx},0,1,1"
-            self.sprite_entries.append(spec)
-            self.sprites_listbox.insert(tk.END, spec)
+        count = 0
+
+        if max_occ_row != -1 and max_occ_row <= 1:
+            max_rows = max_occ_row + 1
+            for gx in range(columns):
+                x0 = left + gx * grid_w
+                col_rows = [False] * max_rows
+                for gy in range(max_rows):
+                    y0 = top + gy * grid_h
+                    y1 = min(y0 + grid_h, bottom)
+                    for y in range(y0, y1):
+                        for x in range(x0, x0 + grid_w):
+                            r, g, b, a = pixels[x, y]
+                            if a > 0:
+                                col_rows[gy] = True
+                                break
+                        if col_rows[gy]:
+                            break
+                gy = 0
+                while gy < max_rows:
+                    if not col_rows[gy]:
+                        gy += 1
+                        continue
+                    start = gy
+                    while gy < max_rows and col_rows[gy]:
+                        gy += 1
+                    gh = gy - start
+                    spec = f"{gx},{start},1,{gh}"
+                    self.sprite_entries.append(spec)
+                    self.sprites_listbox.insert(tk.END, spec)
+                    count += 1
+        else:
+            for gy in range(rows):
+                for gx in range(columns):
+                    spec = f"{gx},{gy},1,1"
+                    self.sprite_entries.append(spec)
+                    self.sprites_listbox.insert(tk.END, spec)
+                    count += 1
 
         self.log_text.insert(
             tk.END,
-            f"Auto-detected grid {grid_w}x{grid_h}, offset {left},{top}, {columns} sprite(s).\n",
+            f"Auto-detected grid {grid_w}x{grid_h}, offset {left},{top}, {count} sprite(s).\n",
         )
         self.log_text.see(tk.END)
 

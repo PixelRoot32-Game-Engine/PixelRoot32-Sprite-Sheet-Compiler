@@ -72,17 +72,64 @@ def main():
         print(f"ERROR: input file not found: {input_path}")
         sys.exit(1)
 
-    grid_w, grid_h = parse_grid(args.grid)
+    img = Image.open(input_path).convert("RGBA")
     
+    if args.grid:
+        grid_w, grid_h = parse_grid(args.grid)
+    else:
+        # Auto-detect grid logic (ported from GUI)
+        width, height = img.size
+        
+        def divisors(n: int):
+            result = set()
+            limit = int(n**0.5) + 1
+            for d in range(1, limit):
+                if n % d == 0:
+                    result.add(d)
+                    result.add(n // d)
+            return sorted(result)
+
+        candidates = [d for d in divisors(width) if 8 <= d <= width]
+        preferred = [16, 32, 8, 24, 48, 64]
+        
+        grid_w = None
+        for p in preferred:
+            if p in candidates:
+                grid_w = p
+                break
+        
+        if grid_w is None:
+            if candidates:
+                grid_w = max(candidates)
+            else:
+                grid_w = width
+        
+        grid_h = grid_w # Assume square grid cells for auto-detect
+        print(f"INFO: Auto-detected grid size: {grid_w}x{grid_h}")
+
     offset_x, offset_y = 0, 0
     if args.offset:
         ox, oy = args.offset.split(",")
         offset_x, offset_y = int(ox), int(oy)
 
-    sprites = [parse_sprite(s) for s in args.sprite]
+    if args.sprite:
+        sprites = [parse_sprite(s) for s in args.sprite]
+    else:
+        # Auto-generate sprites filling the grid (ported from GUI)
+        cols = max(1, img.width // grid_w)
+        rows = max(1, img.height // grid_h)
+        sprites = []
+        for gy in range(rows):
+            for gx in range(cols):
+                sprites.append((gx, gy, 1, 1))
+        print(f"INFO: Auto-generated {len(sprites)} sprites ({cols} cols x {rows} rows).")
 
-    img = Image.open(input_path).convert("RGBA")
     colors = extract_colors(img)
+
+    if len(colors) > 4:
+        print(f"WARNING: Detected {len(colors)} colors (layers).")
+        print("         Performance may degrade on ESP32 if using > 4 layers for main characters.")
+        print("         Consider using 4bpp packed sprites for higher color counts.")
 
     out_path = Path(args.out)
 
