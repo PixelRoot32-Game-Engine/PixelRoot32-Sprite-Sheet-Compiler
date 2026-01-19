@@ -18,5 +18,5 @@ venv/
 /dist/
 /*.spec
 
-# Optional: generated sprite headers (uncomment if you do NOT want them tracked)
-# sprites_*.h
+# ignore generated sprite headers
+*.h

@@ -215,6 +215,24 @@ python .\pr32-sprite-compiler.py `
   Default: `sprites.h`.  
   The script writes the file directly → **do not use shell redirection `>`**.
 
+- **`--mode` (optional)**  
+  Export mode. Controls how colors are encoded in the generated data:
+  - `layered` (default): generates one 1bpp array per color layer  
+    (`SPRITE_0_LAYER_0`, `SPRITE_0_LAYER_1`, …). Best when using the
+    layered sprite API in the engine.
+  - `2bpp`: generates a single packed array per sprite
+    (`SPRITE_0_2BPP`) using 2 bits per pixel. Index 0 is transparent;
+    indices 1–3 are mapped to up to 3 opaque colors. Intended for the
+    engine’s `Sprite2bpp` format.
+  - `4bpp`: like `2bpp` but with 4 bits per pixel (`SPRITE_0_4BPP`),
+    supporting up to 15 opaque colors + transparent index 0. Intended
+    for the engine’s `Sprite4bpp` format.
+
+  In the PixelRoot32 engine, make sure the `width` and `height` you
+  pass to `Sprite2bpp` / `Sprite4bpp` match the pixel size implied by
+  `--grid` and the sprite’s `gw`/`gh` values, otherwise only part of
+  the sprite will be rendered.
+
 #### 3.2.3 Full example
 
 Sprite sheet with 9 frames (144×32), sprites of 16×32, first row shifted 10 pixels down:
@@ -549,3 +567,10 @@ pyinstaller --noconsole --onefile --add-data "pr32-sprite-compiler.py:." pr32-sp
 The resulting binary will be placed in the `dist/` folder (e.g. `dist/pr32-sprite-compiler-gui`).
 
 > The GUI has been written to work both as a plain Python script and as a PyInstaller-frozen executable. At runtime it automatically locates and executes `pr32-sprite-compiler.py` from the bundled files.
+
+---
+
+## License
+PixelRoot32 Sprite Compiler is **open-source** under the **MIT License**.
+
+---
