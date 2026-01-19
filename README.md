@@ -295,9 +295,33 @@ real_y = offset_y + gy * grid_h
   - **Why?**: Although the engine technically supports up to 255 layers, rendering each layer involves a separate pass. Exceeding these limits can significantly drop the frame rate on standard ESP32 hardware.
   - **Alternative**: If you need more than 4 colors, consider using **4bpp packed sprites** (if supported by your engine version) instead of stacking many 1bpp layers, as it draws the final pixel in a single pass.
 
-- **Palette**: It is strongly recommended to use the **official PixelRoot32 palette** to ensure visual consistency and optimal rendering.
-  - Palette file: `assets/pixelroot32_palette.png`
-  - Colors outside this palette will still be compiled, but they might not blend correctly with other engine assets.
+### Color Palette & Sprites
+
+PixelRoot32 uses a fixed indexed color palette optimized for embedded hardware:
+
+- Colors are represented as 8-bit indices.
+- Internally resolved to RGB565.
+- Improves performance and memory usage.
+- Ensures visual consistency across games.
+
+The engine provides a built-in palette of 16 colors (plus transparent) via the
+`pixelroot32::graphics::Color` enum.
+
+### Color Palette Selection
+
+The engine supports multiple pre-defined color palettes. Developers can select **one active palette** at a time for their game.
+
+**Available Palettes:**
+
+| Palette | Description | Preview |
+| :--- | :--- | :--- |
+| `PR32` (Default) | The standard PixelRoot32 palette | <img src="assets/palette_PR32.png" width="150"/> |
+| `NES` | Nintendo Entertainment System style | <img src="assets/palette_NES.png" width="150"/> |
+| `GB` | GameBoy (Greyscale/Green) style | <img src="assets/palette_GB.png" width="150"/> |
+| `GBC` | GameBoy Color style | <img src="assets/palette_GBC.png" width="150"/> |
+| `PICO8` | PICO-8 fantasy console style | <img src="assets/palette_PICO8.png" width="150"/> |
+
+> **Note:** You can import these images into your pixel art editor (Aseprite, Photoshop, etc.) to ensure your assets use the correct colors.
 
 ---
 
