@@ -105,6 +105,10 @@ class SpriteCompilerGUI:
         ttk.Button(
             options_frame, text="Auto-detect", command=self._auto_detect_clicked
         ).grid(row=0, column=3, sticky="e")
+        
+        ttk.Label(options_frame, text="(Experimental)", foreground="gray").grid(
+            row=0, column=4, sticky="w", padx=(2, 0)
+        )
 
         ttk.Label(main, text="Sprites (gx, gy, gw, gh):").grid(
             row=6, column=0, columnspan=3, sticky="w", pady=(10, 2)

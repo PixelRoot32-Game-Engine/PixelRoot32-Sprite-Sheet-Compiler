@@ -254,6 +254,8 @@ def main():
             cropped = img.crop((x, y, x + w, y + h))
             sprite = Image.new("RGBA", (w, h), (0, 0, 0, 0))
             sprite.paste(cropped, (0, 0))
+            
+            f.write(f"// Dimensions: {w}x{h}\n")
 
             if args.mode == "layered":
                 for layer, color in enumerate(colors):
