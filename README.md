@@ -89,6 +89,8 @@ Pillow OK
 
 ## 3. Usage
 
+> **Note for Windows Users:** There is a packaged `.exe` version available in the **Releases** section. You can download and run it directly without installing Python or dependencies.
+
 ### 3.1 GUI (recommended)
 
 For most users (artists, technical designers), the GUI is the easiest way to use the compiler. It is a thin wrapper around `pr32-sprite-compiler.py` and internally calls the same script with the same parameters.
@@ -133,6 +135,8 @@ The window contains:
     - Detect the vertical offset.
     - Populate the sprite list with one sprite per cell in the first row.
   - You can then correct any values manually.
+
+  > **Note:** Auto-detect is **experimental** and may not always work correctly. You can always manually input the grid and sprite data by checking your sprite sheet in tools like **PixelEdit** or **Aseprite**.
 
 - **Sprites (gx, gy, gw, gh)**  
   - List of sprite definitions in grid units (same meaning as the CLI `--sprite` options).  
