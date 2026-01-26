@@ -1,0 +1,96 @@
+name: Build and Release
+
+on:
+  pull_request:
+    branches:
+      - main
+    types: [closed]
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get latest tag
+        id: get_version
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
+          echo "Detected version from tag: $LATEST_TAG"
+
+  build:
+    needs: if_merged
+    strategy:
+      matrix:
+        os: [windows-latest, ubuntu-latest, macos-latest]
+        include:
+          - os: windows-latest
+            platform: windows
+            executable_path: dist/main.exe
+            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_windows.exe
+          - os: ubuntu-latest
+            platform: linux
+            executable_path: dist/main
+            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_linux
+          - os: macos-latest
+            platform: macos
+            executable_path: dist/main
+            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_macos
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pillow ttkbootstrap pyinstaller
+          
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --noconsole --onefile --add-data "src/assets${{ matrix.os == 'windows-latest' && ';' || ':' }}src/assets" main.py
+          
+      - name: Rename executable
+        shell: bash
+        run: |
+          mv ${{ matrix.executable_path }} ${{ matrix.asset_name }}
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: ${{ matrix.asset_name }}
+
+  release:
+    needs: [if_merged, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Create Pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.if_merged.outputs.version }}
+          name: Release ${{ needs.if_merged.outputs.version }}
+          prerelease: true
+          files: artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

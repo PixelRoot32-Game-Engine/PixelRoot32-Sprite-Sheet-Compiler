@@ -18,3 +18,4 @@ class CompilationOptions:
     offset_y: int
     mode: str  # "layered", "2bpp", "4bpp"
     output_path: str
+    name_prefix: str = ""

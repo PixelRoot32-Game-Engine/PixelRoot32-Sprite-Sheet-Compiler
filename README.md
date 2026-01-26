@@ -112,6 +112,10 @@ The window contains:
 - **Input PNG**  
   - Click **Browse...** and select your sprite sheet (`.png`).
 
+- **Prefix**  
+  - Optional prefix for the generated sprite names (e.g., `PLAYER_JUM`).  
+  - If provided, names will be formatted as `{PREFIX}_SPRITE_N_MODE[]`.
+
 - **Grid (WxH)**  
   - Same meaning as `--grid` in the CLI.  
   - Enter the sprite cell size in pixels, e.g. `16x32`.
@@ -167,6 +171,7 @@ The command-line interface is useful for automation, scripting, or integration i
 ```bash
 python main.py INPUT.png \
   --grid WxH \
+  [--prefix PREFIX] \
   [--offset X,Y] \
   --sprite gx,gy,gw,gh \
   [--sprite gx,gy,gw,gh ...] \
@@ -179,6 +184,7 @@ On Windows / PowerShell (multi-line) using the backtick:
 python .\main.py `
   assets\player_sprites.png `
   --grid 16x32 `
+  --prefix PLAYER_JUM `
   --offset 0,10 `
   --sprite 0,0,1,1 `
   --sprite 1,0,1,1 `
@@ -190,6 +196,9 @@ python .\main.py `
 
 - **`INPUT.png` (positional)**  
   Path to the PNG sprite sheet.
+
+- **`--prefix PREFIX` (optional)**  
+  Prefix for the generated sprite names. Example: `--prefix PLAYER_JUM`.
 
 - **`--grid WxH` (required)**  
   Grid cell size in pixels.  
@@ -352,11 +361,21 @@ static const uint16_t SPRITE_0_LAYER_1[] = {
 
 ### 5.1 Naming convention
 
-- `SPRITE_<N>_LAYER_<L>`
+- `[PREFIX]_SPRITE_<N>_<MODE>`
+  - `[PREFIX]` = User defined prefix (if provided).
   - `<N>` = sprite index (in the order of the `--sprite` arguments).
-  - `<L>` = layer index (in the order of detected colors).
+  - `<MODE>` = Export mode (e.g., `LAYER_0`, `2BPP`, `4BPP`).
 
-### 5.2 Color layers
+### 5.2 Palette Handling
+
+The compiler automatically detects the palette used by the sprite:
+- **Engine Palettes**: If the sprite uses one of the 5 default engine palettes (`NES`, `GB`, `GBC`, `PICO8`, `PR32`), the color array is **omitted** from the header, as the engine already contains these definitions.
+- **Custom Palettes**: If the sprite uses colors not present in the default palettes, a palette mapping array is generated:
+  ```c
+  static const uint16_t PLAYER_JUM_PALETTE_MAPPING[16] = { /* RGB565 colors */ };
+  ```
+
+### 5.3 Color layers (Layered Mode)
 
 - The tool scans the PNG and extracts all distinct **RGB colors** with alpha > 0.
 - For each detected color:

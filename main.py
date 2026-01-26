@@ -57,7 +57,8 @@ def run_cli(args):
             grid_h=gh,
             offset_x=ox,
             offset_y=oy,
-            mode=args.mode
+            mode=args.mode,
+            name_prefix=args.prefix or ""
         )
 
         print(f"Compiling {len(sprites)} sprites...")
@@ -82,6 +83,7 @@ def main():
         parser.add_argument("--sprite", action="append", help="Sprite definition (gx,gy,gw,gh). Can be used multiple times.")
         parser.add_argument("--out", default="sprites.h", help="Output header file (.h)")
         parser.add_argument("--mode", choices=["layered", "2bpp", "4bpp"], default="layered", help="Export mode")
+        parser.add_argument("--prefix", help="Prefix for the generated sprite names")
         
         args = parser.parse_args()
         sys.exit(run_cli(args))

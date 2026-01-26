@@ -72,6 +72,7 @@ class MainWindow(tb.Window):
         self.offset_var = tk.StringVar(value="0,0")
         self.output_path_var = tk.StringVar(value="sprites.h")
         self.mode_var = tk.StringVar(value="layered")
+        self.prefix_var = tk.StringVar(value="")
 
         # Manual Sprite Entry Vars
         self.manual_gx = tk.StringVar(value="0")
@@ -208,9 +209,14 @@ class MainWindow(tb.Window):
         tb.Label(row_export, text="Export Mode:", width=12).pack(side=LEFT)
         tb.Combobox(row_export, textvariable=self.mode_var, values=["layered", "2bpp", "4bpp"], state="readonly", width=12).pack(side=LEFT, padx=5)
         
-        tb.Label(row_export, text="Output .h:", width=10).pack(side=LEFT, padx=(15, 0))
-        tb.Entry(row_export, textvariable=self.output_path_var).pack(side=LEFT, fill=X, expand=YES, padx=5)
-        tb.Button(row_export, text="Browse...", bootstyle="secondary-outline", command=self._browse_output).pack(side=LEFT)
+        tb.Label(row_export, text="Prefix:", width=10, padding=(15, 0, 0, 0)).pack(side=LEFT)
+        tb.Entry(row_export, textvariable=self.prefix_var, width=15).pack(side=LEFT, padx=5)
+
+        row_output = tb.Frame(card4)
+        row_output.pack(fill=X, pady=(10, 0))
+        tb.Label(row_output, text="Output .h:", width=12).pack(side=LEFT)
+        tb.Entry(row_output, textvariable=self.output_path_var).pack(side=LEFT, fill=X, expand=YES, padx=5)
+        tb.Button(row_output, text="Browse...", bootstyle="secondary-outline", command=self._browse_output).pack(side=LEFT)
 
         tb.Button(card4, text="Export Sprites", bootstyle="info", 
                   command=self._on_compile, padding=(20, 10)).pack(anchor=W, pady=(20, 0))
@@ -365,7 +371,8 @@ class MainWindow(tb.Window):
                 grid_w=gw, grid_h=gh, 
                 offset_x=ox, offset_y=oy,
                 mode=self.mode_var.get(),
-                output_path=self.output_path_var.get()
+                output_path=self.output_path_var.get(),
+                name_prefix=self.prefix_var.get()
             )
 
             self.status_label.config(text="Compiling...", bootstyle="info")
