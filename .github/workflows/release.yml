@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Get latest tag
         id: get_version
         run: |
@@ -27,45 +28,101 @@ jobs:
     needs: if_merged
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-latest, macos-latest]
         include:
           - os: windows-latest
             platform: windows
-            executable_path: dist/main.exe
             asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_windows.exe
+
           - os: ubuntu-latest
             platform: linux
-            executable_path: dist/main
             asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_linux
+
           - os: macos-latest
             platform: macos
-            executable_path: dist/main
-            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_macos
+            dmg_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_macos.dmg
 
     runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pillow ttkbootstrap pyinstaller
-          
-      - name: Build with PyInstaller
+
+      # ---------- WINDOWS ----------
+      - name: Build (Windows)
+        if: matrix.platform == 'windows'
         run: |
-          pyinstaller --noconsole --onefile --add-data "src/assets${{ matrix.os == 'windows-latest' && ';' || ':' }}src/assets" main.py
-          
-      - name: Rename executable
-        shell: bash
+          pyinstaller --noconsole --onefile ^
+            --add-data "src/assets;src/assets" ^
+            main.py
+
+      - name: Rename Windows executable
+        if: matrix.platform == 'windows'
         run: |
-          mv ${{ matrix.executable_path }} ${{ matrix.asset_name }}
-          
-      - name: Upload artifact
+          mv dist/main.exe ${{ matrix.asset_name }}
+
+      # ---------- LINUX ----------
+      - name: Build (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          pyinstaller --noconsole --onefile \
+            --add-data "src/assets:src/assets" \
+            main.py
+
+      - name: Rename Linux binary
+        if: matrix.platform == 'linux'
+        run: |
+          mv dist/main ${{ matrix.asset_name }}
+
+      # ---------- MACOS ----------
+      - name: Build (macOS .app)
+        if: matrix.platform == 'macos'
+        run: |
+          pyinstaller --windowed --onedir \
+            --name PixelRoot32SpriteCompiler \
+            --add-data "src/assets:src/assets" \
+            main.py
+
+      - name: Ad-hoc sign macOS app
+        if: matrix.platform == 'macos'
+        run: |
+          codesign --force --deep --sign - dist/PixelRoot32SpriteCompiler.app
+
+      - name: Install create-dmg
+        if: matrix.platform == 'macos'
+        run: |
+          brew install create-dmg
+
+      - name: Create DMG
+        if: matrix.platform == 'macos'
+        run: |
+          create-dmg \
+            --volname "PixelRoot32 Sprite Compiler" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --app-drop-link 400 200 \
+            "${{ matrix.dmg_name }}" \
+            dist/PixelRoot32SpriteCompiler.app
+
+      - name: Upload macOS DMG
+        if: matrix.platform == 'macos'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.dmg_name }}
+          path: ${{ matrix.dmg_name }}
+
+      # ---------- UPLOAD WIN / LINUX ----------
+      - name: Upload artifact (Windows/Linux)
+        if: matrix.platform != 'macos'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.asset_name }}
@@ -76,9 +133,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
