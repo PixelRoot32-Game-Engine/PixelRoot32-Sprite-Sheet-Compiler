@@ -4,11 +4,11 @@ on:
   pull_request:
     branches:
       - main
-    types: [closed]
+    types: [labeled, opened, synchronize, reopened]
 
 jobs:
-  if_merged:
-    if: github.event.pull_request.merged == true
+  check_label:
+    if: contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
@@ -17,29 +17,32 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Get latest tag
+      - name: Get version
         id: get_version
         run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0)
-          echo "version=$LATEST_TAG" >> $GITHUB_OUTPUT
-          echo "Detected version from tag: $LATEST_TAG"
+          # Intenta obtener la versión de un tag, o usa el ID del PR como fallback
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          VERSION="${LATEST_TAG}-pr${PR_NUMBER}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version for PR: $VERSION"
 
   build:
-    needs: if_merged
+    needs: check_label
     strategy:
       matrix:
         include:
           - os: windows-latest
             platform: windows
-            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_windows.exe
+            asset_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_windows.exe
 
           - os: ubuntu-latest
             platform: linux
-            asset_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_linux
+            asset_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_linux
 
           - os: macos-latest
             platform: macos
-            dmg_name: PixelRoot32SpriteCompiler_${{ needs.if_merged.outputs.version }}_macos.dmg
+            dmg_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_macos.dmg
 
     runs-on: ${{ matrix.os }}
 
@@ -60,8 +63,8 @@ jobs:
       - name: Build (Windows)
         if: matrix.platform == 'windows'
         run: |
-          pyinstaller --noconsole --onefile ^
-            --add-data "src/assets;src/assets" ^
+          pyinstaller --noconsole --onefile `
+            --add-data "src/assets;src/assets" `
             main.py
 
       - name: Rename Windows executable
@@ -129,7 +132,7 @@ jobs:
           path: ${{ matrix.asset_name }}
 
   release:
-    needs: [if_merged, build]
+    needs: [check_label, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -143,12 +146,13 @@ jobs:
           path: artifacts
           merge-multiple: true
 
-      - name: Create Pre-release
+      - name: Create Draft Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.if_merged.outputs.version }}
-          name: Release ${{ needs.if_merged.outputs.version }}
-          prerelease: true
+          tag_name: ${{ needs.check_label.outputs.version }}
+          name: Release ${{ needs.check_label.outputs.version }}
+          draft: true
+          prerelease: false
           files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
