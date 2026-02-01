@@ -250,7 +250,6 @@ python .\main.py `
 
 Sprite sheet with 9 frames (144×32), sprites of 16×32, first row shifted 10 pixels down:
 
-
 ```powershell
 python .\main.py `
   assets\player_sprites.png `
@@ -273,6 +272,7 @@ python .\main.py `
 ## 4. Sprite definition and Constraints
 
 ### 4.1 Grid and Coordinates
+
 The sprite sheet is conceptually divided into a grid of cells of size `WxH` pixels (`--grid`).
 
 - The position `(gx, gy)` is expressed in **grid cells**.
@@ -369,8 +369,10 @@ static const uint16_t SPRITE_0_LAYER_1[] = {
 ### 5.2 Palette Handling
 
 The compiler automatically detects the palette used by the sprite:
+
 - **Engine Palettes**: If the sprite uses one of the 5 default engine palettes (`NES`, `GB`, `GBC`, `PICO8`, `PR32`), the color array is **omitted** from the header, as the engine already contains these definitions.
 - **Custom Palettes**: If the sprite uses colors not present in the default palettes, a palette mapping array is generated:
+
   ```c
   static const uint16_t PLAYER_JUM_PALETTE_MAPPING[16] = { /* RGB565 colors */ };
   ```
@@ -594,6 +596,7 @@ The resulting binary will be placed in the `dist/` folder (e.g. `dist/main`).
 ---
 
 ## License
+
 PixelRoot32 Sprite Compiler is **open-source** under the **MIT License**.
 
 ---
