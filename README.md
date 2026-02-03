@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
+  <img src="assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
 </p>
 
 # PixelRoot32 Sprite Compiler (`pr32-sprite-compiler`)
