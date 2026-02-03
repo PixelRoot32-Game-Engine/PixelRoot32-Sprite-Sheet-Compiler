@@ -34,15 +34,15 @@ jobs:
         include:
           - os: windows-latest
             platform: windows
-            asset_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_windows.exe
+            asset_name: pixel-root32-sprite-compiler_${{ needs.check_label.outputs.version }}_windows.exe
 
           - os: ubuntu-latest
             platform: linux
-            asset_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_linux
+            asset_name: pixel-root32-sprite-compiler_${{ needs.check_label.outputs.version }}_linux
 
           - os: macos-latest
             platform: macos
-            dmg_name: PixelRoot32SpriteCompiler_${{ needs.check_label.outputs.version }}_macos.dmg
+            dmg_name: pixel-root32-sprite-compiler_${{ needs.check_label.outputs.version }}_macos.dmg
 
     runs-on: ${{ matrix.os }}
 
