@@ -1,8 +1,8 @@
 from PIL import Image
 import os
 
-png_path = r'c:\Users\gperez88\Documents\Proyects\Games\pixelroot32 workspace\PixelRoot32 Sprite Compiler\src\assets\pr32_logo.png'
-ico_path = r'c:\Users\gperez88\Documents\Proyects\Games\pixelroot32 workspace\PixelRoot32 Sprite Compiler\src\assets\pr32_logo.ico'
+png_path = r'assets/pr32_logo.png'
+ico_path = r'assets/pr32_logo.ico'
 
 if os.path.exists(png_path):
     img = Image.open(png_path)

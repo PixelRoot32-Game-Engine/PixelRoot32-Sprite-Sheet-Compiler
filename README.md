@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
+  <img src="src/assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
 </p>
 
 # PixelRoot32 Sprite Compiler (`pr32-sprite-compiler`)
@@ -328,11 +328,11 @@ The engine supports multiple pre-defined color palettes. Developers can select *
 
 | Palette | Description | Preview |
 | :--- | :--- | :--- |
-| `PR32` (Default) | The standard PixelRoot32 palette | <img src="assets/palette_PR32.png" width="150"/> |
-| `NES` | Nintendo Entertainment System style | <img src="assets/palette_NES.png" width="150"/> |
-| `GB` | GameBoy (Greyscale/Green) style | <img src="assets/palette_GB.png" width="150"/> |
-| `GBC` | GameBoy Color style | <img src="assets/palette_GBC.png" width="150"/> |
-| `PICO8` | PICO-8 fantasy console style | <img src="assets/palette_PICO8.png" width="150"/> |
+| `PR32` (Default) | The standard PixelRoot32 palette | <img src="src/assets/palette_PR32.png" width="150"/> |
+| `NES` | Nintendo Entertainment System style | <img src="src/assets/palette_NES.png" width="150"/> |
+| `GB` | GameBoy (Greyscale/Green) style | <img src="src/assets/palette_GB.png" width="150"/> |
+| `GBC` | GameBoy Color style | <img src="src/assets/palette_GBC.png" width="150"/> |
+| `PICO8` | PICO-8 fantasy console style | <img src="src/assets/palette_PICO8.png" width="150"/> |
 
 > **Note:** You can import these images into your pixel art editor (Aseprite, Photoshop, etc.) to ensure your assets use the correct colors.
 
