@@ -595,6 +595,22 @@ The resulting binary will be placed in the `dist/` folder (e.g. `dist/main`).
 
 ---
 
+## Recent Changes
+
+### [v0.3.0-dev] - 2026-02-02
+
+- **Sprite Sheet Preview**: Integrated a dynamic preview panel with zoom and grid visualization.
+- **Enhanced UI**: Redesigned to a two-column layout with individual tile/offset controls.
+
+### [v0.2.0-dev] - 2024-01-20
+
+- **Modular Project Structure**: Restructured the project into a modular `src/` layout.
+- **Unified Interface**: Unified the CLI and GUI logic for better maintainability.
+
+For a full list of changes, see the [CHANGELOG.md](CHANGELOG.md).
+
+---
+
 ## License
 
 PixelRoot32 Sprite Compiler is **open-source** under the **MIT License**.
