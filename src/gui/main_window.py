@@ -9,6 +9,18 @@ import os
 from pathlib import Path
 import io
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        # In development, use the project root
+        # This assumes the script is in src/gui/
+        base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+    return os.path.join(base_path, relative_path)
+
 from src.services.exporter import Exporter
 from src.core.models import SpriteDefinition, CompilationOptions
 
@@ -108,11 +120,9 @@ class MainWindow(tb.Window):
         self.offset_y_var.trace_add("write", lambda *args: self._update_preview())
         
     def _setup_assets(self):
-        base_path = Path(__file__).parent.parent
-        
         # Window icon
-        logo_path = base_path / "assets" / "pr32_logo.png"
-        if logo_path.exists():
+        logo_path = resource_path(os.path.join("assets", "pr32_logo.png"))
+        if os.path.exists(logo_path):
             img = Image.open(logo_path)
             self.icon_img = ImageTk.PhotoImage(img)
             self.iconphoto(False, self.icon_img)
