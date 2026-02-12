@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import List, Tuple, Dict
 from PIL import Image
-from src.core.models import SpriteDefinition, CompilationOptions
-from src.core.compiler import SpriteCompiler
+from pr32_sprite_compiler.core.models import SpriteDefinition, CompilationOptions
+from pr32_sprite_compiler.core.compiler import SpriteCompiler
 
 class Exporter:
     # Predefined palettes from PaletteDefs.h
