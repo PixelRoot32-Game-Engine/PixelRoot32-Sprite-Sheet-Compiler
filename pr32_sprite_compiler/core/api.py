@@ -1,7 +1,7 @@
-"""API pública del PixelRoot32 Sprite Compiler.
+"""Public API for the PixelRoot32 Sprite Compiler.
 
-Esta es la única interfaz que debería usarse desde el Suite u otros proyectos.
-Proporciona una API estable y limpia sin dependencias de GUI.
+This is the only interface that should be used from the Suite or other projects.
+It provides a stable and clean API without GUI dependencies.
 
 Example:
     >>> from pr32_sprite_compiler.core import compile_sprite_sheet, SpriteDefinition, CompilationOptions
@@ -45,57 +45,57 @@ __all__ = [
 
 
 def _validate_image(image: Image.Image) -> None:
-    """Valida que la imagen sea válida para compilación.
+    """Validates that the image is valid for compilation.
     
     Args:
-        image: Imagen PIL a validar
+        image: PIL image to validate
         
     Raises:
-        ImageError: Si la imagen no es válida
+        ImageError: If the image is not valid
     """
     if image is None:
-        raise ImageError("La imagen no puede ser None")
+        raise ImageError("Image cannot be None")
     
     if not isinstance(image, Image.Image):
         raise ImageError(
-            f"Se esperaba PIL.Image.Image, se recibió {type(image).__name__}"
+            f"Expected PIL.Image.Image, received {type(image).__name__}"
         )
     
-    # Verificar modo
+    # Check mode
     if image.mode != "RGBA":
         raise ImageError(
-            f"La imagen debe estar en modo RGBA, actualmente es {image.mode}",
+            f"Image must be in RGBA mode, currently it is {image.mode}",
             context={"current_mode": image.mode, "required_mode": "RGBA"}
         )
     
-    # Verificar dimensiones
+    # Check dimensions
     if image.width <= 0 or image.height <= 0:
         raise ImageError(
-            f"Dimensiones de imagen inválidas: {image.width}x{image.height}",
+            f"Invalid image dimensions: {image.width}x{image.height}",
             context={"width": image.width, "height": image.height}
         )
     
-    log.debug(f"Imagen validada: {image.width}x{image.height} RGBA")
+    log.debug(f"Validated image: {image.width}x{image.height} RGBA")
 
 
 def _validate_sprites(sprites: List[SpriteDefinition]) -> None:
-    """Valida la lista de sprites.
+    """Validates the sprite list.
     
     Args:
-        sprites: Lista de sprites a validar
+        sprites: List of sprites to validate
         
     Raises:
-        ValidationError: Si los sprites no son válidos
+        ValidationError: If the sprites are not valid
     """
     if not sprites:
         raise ValidationError(
-            "Se requiere al menos un sprite",
+            "At least one sprite is required",
             field="sprites"
         )
     
     if not isinstance(sprites, list):
         raise ValidationError(
-            f"sprites debe ser una lista, no {type(sprites).__name__}",
+            f"sprites must be a list, not {type(sprites).__name__}",
             field="sprites",
             value=sprites
         )
@@ -103,76 +103,76 @@ def _validate_sprites(sprites: List[SpriteDefinition]) -> None:
     for i, sprite in enumerate(sprites):
         if not isinstance(sprite, SpriteDefinition):
             raise ValidationError(
-                f"El sprite {i} no es un SpriteDefinition válido",
+                f"Sprite {i} is not a valid SpriteDefinition",
                 field=f"sprites[{i}]",
                 value=sprite
             )
         
-        # Validar dimensiones del sprite
+        # Validate sprite dimensions
         if sprite.gw <= 0 or sprite.gh <= 0:
             raise ValidationError(
-                f"Dimensiones de sprite inválidas en sprite {i}",
+                f"Invalid sprite dimensions in sprite {i}",
                 field=f"sprites[{i}].grid_size",
                 value=(sprite.gw, sprite.gh)
             )
     
-    log.debug(f"Sprites validados: {len(sprites)} sprites")
+    log.debug(f"Validated sprites: {len(sprites)} sprites")
 
 
 def _validate_options(options: CompilationOptions) -> None:
-    """Valida las opciones de compilación.
+    """Validates compilation options.
     
     Args:
-        options: Opciones a validar
+        options: Options to validate
         
     Raises:
-        ValidationError: Si las opciones no son válidas
+        ValidationError: If options are not valid
     """
     if options is None:
         raise ValidationError(
-            "options no puede ser None",
+            "options cannot be None",
             field="options"
         )
     
     if not isinstance(options, CompilationOptions):
         raise ValidationError(
-            f"options debe ser CompilationOptions, no {type(options).__name__}",
+            f"options must be CompilationOptions, not {type(options).__name__}",
             field="options",
             value=options
         )
     
-    # Validar grid
+    # Validate grid
     if options.grid_w <= 0:
         raise ValidationError(
-            f"grid_w debe ser positivo, se recibió {options.grid_w}",
+            f"grid_w must be positive, received {options.grid_w}",
             field="grid_w",
             value=options.grid_w
         )
     
     if options.grid_h <= 0:
         raise ValidationError(
-            f"grid_h debe ser positivo, se recibió {options.grid_h}",
+            f"grid_h must be positive, received {options.grid_h}",
             field="grid_h",
             value=options.grid_h
         )
     
-    # Validar modo
+    # Validate mode
     valid_modes = ["layered", "2bpp", "4bpp"]
     if options.mode not in valid_modes:
         raise ValidationError(
-            f"Modo '{options.mode}' no soportado. Use: {', '.join(valid_modes)}",
+            f"Mode '{options.mode}' not supported. Use: {', '.join(valid_modes)}",
             field="mode",
             value=options.mode
         )
     
-    # Validar output_path
+    # Validate output_path
     if not options.output_path:
         raise ValidationError(
-            "output_path no puede estar vacío",
+            "output_path cannot be empty",
             field="output_path"
         )
     
-    log.debug(f"Opciones validadas: modo={options.mode}, grid={options.grid_w}x{options.grid_h}")
+    log.debug(f"Validated options: mode={options.mode}, grid={options.grid_w}x{options.grid_h}")
 
 
 def compile_sprite_sheet(
@@ -181,38 +181,37 @@ def compile_sprite_sheet(
     options: CompilationOptions,
     raise_on_error: bool = False
 ) -> bool:
-    """Compila un sprite sheet a código C.
+    """Compiles a sprite sheet to C code.
     
-    Esta es la función principal de la API pública. Toma una imagen PIL
-    cargada en modo RGBA, una lista de definiciones de sprites y opciones
-    de compilación, y genera un archivo header de C (.h) con los sprites
-    compilados.
+    This is the main function of the public API. It takes a PIL image
+    loaded in RGBA mode, a list of sprite definitions and compilation
+    options, and generates a C header file (.h) with the compiled sprites.
     
     Args:
-        image: Imagen PIL cargada en modo RGBA. Debe contener todos los
-               sprites organizados según la grid especificada.
-        sprites: Lista de SpriteDefinition que indica qué sprites extraer
-                 y en qué posición de la grid se encuentran.
-        options: Opciones de compilación incluyendo grid size, modo de
-                exportación (layered, 2bpp, 4bpp), path de salida, etc.
-        raise_on_error: Si True, lanza excepciones en lugar de retornar False
+        image: PIL image loaded in RGBA mode. Must contain all sprites
+               organized according to the specified grid.
+        sprites: List of SpriteDefinition indicating which sprites to extract
+                 and their position on the grid.
+        options: Compilation options including grid size, export mode
+                (layered, 2bpp, 4bpp), output path, etc.
+        raise_on_error: If True, raises exceptions instead of returning False
     
     Returns:
-        True si la compilación fue exitosa, False en caso contrario.
+        True if compilation was successful, False otherwise.
     
     Raises:
-        ValidationError: Si los parámetros no son válidos (solo si raise_on_error=True)
-        ImageError: Si hay problemas con la imagen (solo si raise_on_error=True)
-        CompilationError: Si falla la compilación (solo si raise_on_error=True)
+        ValidationError: If parameters are not valid (only if raise_on_error=True)
+        ImageError: If there are problems with the image (only if raise_on_error=True)
+        CompilationError: If compilation fails (only if raise_on_error=True)
     
     Example:
         >>> from pr32_sprite_compiler.core import compile_sprite_sheet, SpriteDefinition, CompilationOptions
         >>> from PIL import Image
         >>> 
-        >>> # Cargar imagen
+        >>> # Load image
         >>> img = Image.open("assets/player.png").convert("RGBA")
         >>> 
-        >>> # Definir sprites (4 frames de animación)
+        >>> # Define sprites (4 animation frames)
         >>> sprites = [
         ...     SpriteDefinition(0, 0, 1, 1, 0),  # frame 0
         ...     SpriteDefinition(1, 0, 1, 1, 1),  # frame 1
@@ -220,7 +219,7 @@ def compile_sprite_sheet(
         ...     SpriteDefinition(3, 0, 1, 1, 3),  # frame 3
         ... ]
         >>> 
-        >>> # Configurar opciones
+        >>> # Configure options
         >>> options = CompilationOptions(
         ...     grid_w=16,
         ...     grid_h=16,
@@ -231,27 +230,27 @@ def compile_sprite_sheet(
         ...     name_prefix="PLAYER"
         ... )
         >>> 
-        >>> # Compilar
+        >>> # Compile
         >>> success = compile_sprite_sheet(img, sprites, options)
         >>> if success:
-        ...     print(f"Generado: {options.output_path}")
+        ...     print(f"Generated: {options.output_path}")
         ... else:
-        ...     print("Error en la compilación")
+        ...     print("Compilation error")
     """
     try:
-        # Validar entradas
+        # Validate inputs
         log.log_compilation_start(options)
         _validate_image(image)
         _validate_sprites(sprites)
         _validate_options(options)
         
-        # Ejecutar compilación
+        # Execute compilation
         result = Exporter.export(image, sprites, options)
         
         if result:
             log.log_compilation_success(len(sprites), options.output_path)
         else:
-            log.log_compilation_error("Exportación falló")
+            log.log_compilation_error("Export failed")
         
         return result
         
@@ -261,38 +260,38 @@ def compile_sprite_sheet(
             raise
         return False
     except Exception as e:
-        log.log_compilation_error(f"Error inesperado: {str(e)}")
+        log.log_compilation_error(f"Unexpected error: {str(e)}")
         if raise_on_error:
-            raise CompilationError(f"Error inesperado: {str(e)}")
+            raise CompilationError(f"Unexpected error: {str(e)}")
         return False
 
 
 def get_supported_palettes() -> List[str]:
-    """Retorna la lista de paletas predefinidas soportadas.
+    """Returns the list of supported predefined palettes.
     
     Returns:
-        Lista de nombres de paletas disponibles (e.g., ['PALETTE_NES', ...])
+        List of available palette names (e.g., ['PALETTE_NES', ...])
     
     Example:
         >>> from pr32_sprite_compiler.core import get_supported_palettes
         >>> palettes = get_supported_palettes()
-        >>> print(f"Palettes soportadas: {', '.join(palettes)}")
+        >>> print(f"Supported palettes: {', '.join(palettes)}")
     """
     return list(Exporter.PREDEFINED_PALETTES.keys())
 
 
 def get_palette_colors(palette_name: str) -> List[tuple]:
-    """Retorna los colores de una paleta predefinida.
+    """Returns the colors of a predefined palette.
     
     Args:
-        palette_name: Nombre de la paleta (e.g., 'PALETTE_NES')
+        palette_name: Palette name (e.g., 'PALETTE_NES')
     
     Returns:
-        Lista de tuplas RGB o lista vacía si la paleta no existe.
+        List of RGB tuples or empty list if the palette does not exist.
     
     Example:
         >>> from pr32_sprite_compiler.core import get_palette_colors
         >>> colors = get_palette_colors("PALETTE_NES")
-        >>> print(f"La paleta NES tiene {len(colors)} colores")
+        >>> print(f"NES palette has {len(colors)} colors")
     """
     return Exporter.PREDEFINED_PALETTES.get(palette_name, [])
