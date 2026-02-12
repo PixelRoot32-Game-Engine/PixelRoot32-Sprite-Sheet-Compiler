@@ -21,8 +21,8 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-from src.services.exporter import Exporter
-from src.core.models import SpriteDefinition, CompilationOptions
+from pr32_sprite_compiler.core.exporter import Exporter
+from pr32_sprite_compiler.core.models import SpriteDefinition, CompilationOptions
 
 VERSION = "v0.3.0-dev"
 
@@ -231,34 +231,26 @@ class MainWindow(tb.Window):
         self.zoom_label = tb.Label(preview_controls, text="100%", bootstyle="secondary", padding=(10, 0))
         self.zoom_label.pack(side=LEFT)
 
-        canvas_container = tb.Frame(self.preview_card, bootstyle="dark")
+        canvas_container = tb.Frame(self.preview_card)
         canvas_container.pack(fill=BOTH, expand=YES)
         
-        self.preview_canvas = tk.Canvas(canvas_container, bg="#333333", 
+        self.preview_canvas = tk.Canvas(canvas_container, bg="#454545",
                                       highlightthickness=0, borderwidth=0)
         self.preview_canvas.pack(side=LEFT, fill=BOTH, expand=YES)
-        
+
         # Canvas Interaction Binds
         self.preview_canvas.bind("<MouseWheel>", self._on_mouse_zoom)
         self.preview_canvas.bind("<ButtonPress-1>", self._on_pan_start)
         self.preview_canvas.bind("<B1-Motion>", self._on_pan_move)
         self.preview_canvas.bind("<ButtonRelease-1>", self._on_pan_stop)
-        
+
         # Keyboard binds for Space (Panning)
         self.bind("<KeyPress-space>", self._on_space_press)
         self.bind("<KeyRelease-space>", self._on_space_release)
-        
+
         # Ensure canvas can receive focus for keyboard events
         self.preview_canvas.config(takefocus=True)
         self.preview_canvas.bind("<Enter>", lambda e: self.preview_canvas.focus_set())
-        
-        preview_v_scroll = tb.Scrollbar(canvas_container, orient=VERTICAL, command=self.preview_canvas.yview)
-        preview_v_scroll.pack(side=RIGHT, fill=Y)
-        
-        preview_h_scroll = tb.Scrollbar(self.preview_card, orient=HORIZONTAL, command=self.preview_canvas.xview)
-        preview_h_scroll.pack(fill=X)
-        
-        self.preview_canvas.configure(yscrollcommand=preview_v_scroll.set, xscrollcommand=preview_h_scroll.set)
 
         # 4. Export (Moved and Redesigned for UX)
         card4 = self._create_card(right_area, "Export")

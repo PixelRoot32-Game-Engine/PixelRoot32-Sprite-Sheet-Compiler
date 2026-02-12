@@ -7,9 +7,9 @@ from PIL import Image
 # Add src to path if needed
 sys.path.append(str(Path(__file__).parent))
 
-from src.gui.main_window import MainWindow
-from src.services.exporter import Exporter
-from src.core.models import SpriteDefinition, CompilationOptions
+from pr32_sprite_compiler.gui.main_window import MainWindow
+from pr32_sprite_compiler.core.exporter import Exporter
+from pr32_sprite_compiler.core.models import SpriteDefinition, CompilationOptions
 
 def run_cli(args):
     """Executes the compilation from command line arguments."""

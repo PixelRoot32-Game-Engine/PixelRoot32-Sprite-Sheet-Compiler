@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pr32-sprite-compiler"
+version = "0.3.0"
+description = "Sprite sheet compiler for PixelRoot32 engine"
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "PixelRoot32 Team", email = "contact@pixelroot32.dev"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "Topic :: Multimedia :: Graphics :: Graphics Conversion",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "Pillow>=9.0.0",
+]
+
+[project.optional-dependencies]
+gui = [
+    "ttkbootstrap>=1.0.0",
+]
+dev = [
+    "pytest>=7.0",
+    "black",
+    "flake8",
+]
+
+[project.urls]
+Homepage = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler"
+Repository = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler"
+Documentation = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler/blob/main/README.md"
+"Bug Tracker" = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler/issues"
+
+[project.scripts]
+pr32-sprite-compiler = "main:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pr32_sprite_compiler*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

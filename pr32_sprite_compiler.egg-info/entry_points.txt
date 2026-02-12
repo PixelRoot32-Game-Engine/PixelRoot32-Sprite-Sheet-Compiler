@@ -1,0 +1,2 @@
+[console_scripts]
+pr32-sprite-compiler = main:main

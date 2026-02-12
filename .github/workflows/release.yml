@@ -59,11 +59,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install pillow ttkbootstrap pyinstaller
 
+      - name: Generate icons
+        run: |
+          python convert_ico.py
+
       # ---------- WINDOWS ----------
       - name: Build (Windows)
         if: matrix.platform == 'windows'
         run: |
           pyinstaller --noconsole --onefile `
+            --icon "assets/pr32_logo.ico" `
             --add-data "assets;assets" `
             main.py
 
@@ -77,6 +82,7 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           pyinstaller --noconsole --onefile \
+            --icon "assets/pr32_logo.png" \
             --add-data "assets:assets" \
             main.py
 
@@ -91,6 +97,7 @@ jobs:
         run: |
           pyinstaller --windowed --onedir \
             --name PixelRoot32SpriteCompiler \
+            --icon "assets/pr32_logo.icns" \
             --add-data "assets:assets" \
             main.py
 
