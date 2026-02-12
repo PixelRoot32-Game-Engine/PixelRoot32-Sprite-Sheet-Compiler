@@ -191,7 +191,13 @@ The sprite sheet is divided into a grid of cells. Position and size are specifie
 
 **Example:** `--sprite 0,0,1,1` defines a single-cell sprite at position (0,0).
 
-### Export Modes
+| Palette | Description | Preview |
+| :--- | :--- | :--- |
+| `PR32` (Default) | The standard PixelRoot32 palette | <img src="assets/palette_PR32.png" width="150"/> |
+| `NES` | Nintendo Entertainment System style | <img src="assets/palette_NES.png" width="150"/> |
+| `GB` | GameBoy (Greyscale/Green) style | <img src="assets/palette_GB.png" width="150"/> |
+| `GBC` | GameBoy Color style | <img src="assets/palette_GBC.png" width="150"/> |
+| `PICO8` | PICO-8 fantasy console style | <img src="assets/palette_PICO8.png" width="150"/> |
 
 - **layered** (default): One 1bpp array per color layer
 - **2bpp**: Packed array, 2 bits per pixel (up to 3 colors)
