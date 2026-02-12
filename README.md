@@ -18,7 +18,7 @@ static const uint16_t SPRITE_0_LAYER_1[] = { /* bit data */ };
 /* ... */
 ```
 
-For the engine that consumes these headers, see the [PixelRoot32 Game Engine repository](https://github.com/Gperez88/PixelRoot32-Game-Engine).
+For the engine that consumes these headers, see the [PixelRoot32 Game Engine repository](https://github.com/PixelRoot32-Game-Engine/PixelRoot32-Game-Engine).
 
 ---
 
@@ -283,7 +283,3 @@ pr32_sprite_compiler/
 ## License
 
 MIT License - See [LICENSE](LICENSE) file for details.
-
----
-
-*For detailed implementation notes, see [PLAN_IMPLEMENTACION.md](PLAN_IMPLEMENTACION.md)*
