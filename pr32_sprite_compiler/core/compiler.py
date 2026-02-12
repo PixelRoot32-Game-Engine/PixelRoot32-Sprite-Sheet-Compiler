@@ -1,6 +1,6 @@
 from PIL import Image
 from typing import List, Tuple, Dict, Set
-from src.core.models import SpriteDefinition, CompilationOptions
+from pr32_sprite_compiler.core.models import SpriteDefinition, CompilationOptions
 
 class SpriteCompiler:
     @staticmethod

@@ -21,8 +21,8 @@ def resource_path(relative_path):
 
     return os.path.join(base_path, relative_path)
 
-from src.services.exporter import Exporter
-from src.core.models import SpriteDefinition, CompilationOptions
+from pr32_sprite_compiler.core.exporter import Exporter
+from pr32_sprite_compiler.core.models import SpriteDefinition, CompilationOptions
 
 VERSION = "v0.3.0-dev"
 

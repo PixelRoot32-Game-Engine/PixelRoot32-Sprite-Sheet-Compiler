@@ -1,0 +1,9 @@
+Pillow>=9.0.0
+
+[dev]
+pytest>=7.0
+black
+flake8
+
+[gui]
+ttkbootstrap>=1.0.0
