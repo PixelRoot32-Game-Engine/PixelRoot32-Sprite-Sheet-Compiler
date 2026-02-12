@@ -1,4 +1,4 @@
-"""Tests para la API pública del PixelRoot32 Sprite Compiler."""
+"""Tests for the PixelRoot32 Sprite Compiler public API."""
 import sys
 import os
 import tempfile
@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 def test_api_imports():
-    """Verifica que todos los elementos de la API pueden importarse desde src.core."""
+    """Verifies that all API elements can be imported from src.core."""
     try:
         from pr32_sprite_compiler.core import (
             compile_sprite_sheet,
@@ -19,28 +19,28 @@ def test_api_imports():
             SpriteCompiler,
             Exporter,
         )
-        print("[OK] API publica importable desde src.core")
+        print("[OK] Public API importable from src.core")
         return True
     except Exception as e:
-        print(f"[FAIL] Error importando API: {e}")
+        print(f"[FAIL] Error importing API: {e}")
         return False
 
 def test_api_simple_compile():
-    """Verifica que compile_sprite_sheet funciona con un caso simple."""
+    """Verifies that compile_sprite_sheet works with a simple case."""
     from pr32_sprite_compiler.core import compile_sprite_sheet, SpriteDefinition, CompilationOptions
     from PIL import Image
     
     try:
-        # Crear imagen de prueba simple (2x1 grid de 16x16)
-        img = Image.new("RGBA", (32, 16), (255, 0, 0, 255))  # Rojo
+        # Create simple test image (2x1 grid of 16x16)
+        img = Image.new("RGBA", (32, 16), (255, 0, 0, 255))  # Red
         
-        # Definir sprites
+        # Define sprites
         sprites = [
             SpriteDefinition(0, 0, 1, 1, 0),
             SpriteDefinition(1, 0, 1, 1, 1),
         ]
         
-        # Crear archivo temporal
+        # Create temporary file
         with tempfile.NamedTemporaryFile(mode='w', suffix='.h', delete=False) as f:
             output_path = f.name
         
@@ -57,32 +57,32 @@ def test_api_simple_compile():
             
             result = compile_sprite_sheet(img, sprites, options)
             
-            # Verificar que el archivo fue creado
+            # Verify that the file was created
             if result and os.path.exists(output_path):
-                # Leer contenido
+                # Read content
                 with open(output_path, 'r') as f:
                     content = f.read()
                     if "TEST_SPRITE_0_LAYER_0" in content:
-                        print("[OK] API compile_sprite_sheet funciona correctamente")
+                        print("[OK] API compile_sprite_sheet works correctly")
                         return True
                     else:
-                        print("[FAIL] Contenido generado no contiene sprite esperado")
+                        print("[FAIL] Generated content does not contain expected sprite")
                         return False
             else:
-                print(f"[FAIL] Compilacion fallo o archivo no creado")
+                print(f"[FAIL] Compilation failed or file not created")
                 return False
         finally:
-            # Limpiar
+            # Clean up
             if os.path.exists(output_path):
                 os.unlink(output_path)
     except Exception as e:
-        print(f"[FAIL] Error en test de compilacion: {e}")
+        print(f"[FAIL] Error in compilation test: {e}")
         import traceback
         traceback.print_exc()
         return False
 
 def test_api_get_supported_palettes():
-    """Verifica que get_supported_palettes funciona."""
+    """Verifies that get_supported_palettes works."""
     from pr32_sprite_compiler.core import get_supported_palettes
     
     try:
@@ -92,40 +92,40 @@ def test_api_get_supported_palettes():
         
         for palette in expected:
             if palette not in palettes:
-                print(f"[FAIL] Paleta '{palette}' no encontrada")
+                print(f"[FAIL] Palette '{palette}' not found")
                 return False
         
-        print(f"[OK] get_supported_palettes retorna {len(palettes)} paletas")
+        print(f"[OK] get_supported_palettes returns {len(palettes)} palettes")
         return True
     except Exception as e:
-        print(f"[FAIL] Error en get_supported_palettes: {e}")
+        print(f"[FAIL] Error in get_supported_palettes: {e}")
         return False
 
 def test_api_get_palette_colors():
-    """Verifica que get_palette_colors funciona."""
+    """Verifies that get_palette_colors works."""
     from pr32_sprite_compiler.core import get_palette_colors
     
     try:
-        # Paleta existente
+        # Existing palette
         colors = get_palette_colors("PALETTE_NES")
         if len(colors) != 16:
-            print(f"[FAIL] PALETTE_NES deberia tener 16 colores, tiene {len(colors)}")
+            print(f"[FAIL] PALETTE_NES should have 16 colors, has {len(colors)}")
             return False
         
-        # Paleta no existente
+        # Non-existent palette
         empty = get_palette_colors("PALETTE_FAKE")
         if empty != []:
-            print(f"[FAIL] Paleta inexistente deberia retornar lista vacia")
+            print(f"[FAIL] Non-existent palette should return empty list")
             return False
         
-        print("[OK] get_palette_colors funciona correctamente")
+        print("[OK] get_palette_colors works correctly")
         return True
     except Exception as e:
-        print(f"[FAIL] Error en get_palette_colors: {e}")
+        print(f"[FAIL] Error in get_palette_colors: {e}")
         return False
 
 def test_api_compile_modes():
-    """Verifica que compile_sprite_sheet funciona con diferentes modos."""
+    """Verifies that compile_sprite_sheet works with different modes."""
     from pr32_sprite_compiler.core import compile_sprite_sheet, SpriteDefinition, CompilationOptions
     from PIL import Image
     
@@ -134,7 +134,7 @@ def test_api_compile_modes():
     
     for mode in modes:
         try:
-            # Crear imagen de prueba (16x16 con colores limitados para 2bpp/4bpp)
+            # Create test image (16x16 with limited colors for 2bpp/4bpp)
             img = Image.new("RGBA", (16, 16), (255, 0, 0, 255))
             
             sprites = [SpriteDefinition(0, 0, 1, 1, 0)]
@@ -161,29 +161,29 @@ def test_api_compile_modes():
                     os.unlink(output_path)
         except Exception as e:
             results.append((mode, False))
-            print(f"[WARN] Modo {mode} fallo: {e}")
+            print(f"[WARN] Mode {mode} failed: {e}")
     
     success_count = sum(1 for _, r in results if r)
     if success_count == len(modes):
-        print(f"[OK] Todos los modos funcionan: {', '.join(modes)}")
+        print(f"[OK] All modes work: {', '.join(modes)}")
         return True
     else:
         failed = [m for m, r in results if not r]
-        print(f"[WARN] Algunos modos fallaron: {', '.join(failed)}")
+        print(f"[WARN] Some modes failed: {', '.join(failed)}")
         return success_count > 0
 
 def run_api_tests():
-    """Ejecuta todos los tests de la API."""
+    """Runs all API tests."""
     print("="*60)
-    print("Tests de API Publica - Fase 3")
+    print("Public API Tests - Phase 3")
     print("="*60)
     
     tests = [
-        ("Importacion de API", test_api_imports),
-        ("Compilacion Simple", test_api_simple_compile),
-        ("Paletras Soportadas", test_api_get_supported_palettes),
-        ("Colores de Paleta", test_api_get_palette_colors),
-        ("Modos de Compilacion", test_api_compile_modes),
+        ("API Import", test_api_imports),
+        ("Simple Compilation", test_api_simple_compile),
+        ("Supported Palettes", test_api_get_supported_palettes),
+        ("Palette Colors", test_api_get_palette_colors),
+        ("Compilation Modes", test_api_compile_modes),
     ]
     
     results = []
@@ -193,13 +193,13 @@ def run_api_tests():
             result = test_func()
             results.append((name, result))
         except Exception as e:
-            print(f"[FAIL] Test fallo con excepcion: {e}")
+            print(f"[FAIL] Test failed with exception: {e}")
             import traceback
             traceback.print_exc()
             results.append((name, False))
     
     print("\n" + "="*60)
-    print("RESUMEN API")
+    print("API SUMMARY")
     print("="*60)
     
     passed = sum(1 for _, r in results if r)
@@ -209,7 +209,7 @@ def run_api_tests():
         status = "[PASS]" if result else "[FAIL]"
         print(f"{status}: {name}")
     
-    print(f"\nTotal API: {passed}/{total} tests pasaron")
+    print(f"\nTotal API: {passed}/{total} tests passed")
     
     return passed == total
 

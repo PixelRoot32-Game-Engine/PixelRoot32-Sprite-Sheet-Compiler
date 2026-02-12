@@ -2,7 +2,7 @@ Metadata-Version: 2.4
 Name: pr32-sprite-compiler
 Version: 0.3.0
 Summary: Sprite sheet compiler for PixelRoot32 engine
-Author-email: PixelRoot32 Team <contact@pixelroot32.dev>
+Author-email: PixelRoot32 Team <contact@pixelroot32.org>
 License: MIT
 Project-URL: Homepage, https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler
 Project-URL: Repository, https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler
@@ -31,7 +31,7 @@ Requires-Dist: black; extra == "dev"
 Requires-Dist: flake8; extra == "dev"
 
 <p align="center">
-  <img src="assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
+  <img src="../assets/pr32_logo.png" alt="PixelRoot32 Logo" width="320">
 </p>
 
 # PixelRoot32 Sprite Compiler (`pr32-sprite-compiler`)
