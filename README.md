@@ -71,7 +71,8 @@ pip install git+https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler.git@v
 
 ### Verification
 
-```python
+```bash
+pr32-sprite-compiler --help
 python -c "from pr32_sprite_compiler import compile_sprite_sheet; print('OK')"
 ```
 

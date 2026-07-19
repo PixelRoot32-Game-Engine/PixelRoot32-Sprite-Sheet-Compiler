@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pr32-sprite-compiler"
-version = "0.3.0"
+version = "0.3.1"
 description = "Sprite sheet compiler for PixelRoot32 engine"
 readme = "README.md"
 license = {text = "MIT"}
@@ -32,7 +32,8 @@ dependencies = [
 
 [project.optional-dependencies]
 gui = [
-    "ttkbootstrap>=1.0.0",
+    # ttkbootstrap 2.x removed/relocated ttkbootstrap.scrolled used by the GUI.
+    "ttkbootstrap>=1.0.0,<2.0",
 ]
 dev = [
     "pytest>=7.0",
@@ -47,7 +48,7 @@ Documentation = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler/blob
 "Bug Tracker" = "https://github.com/pixelroot32/PixelRoot32-Sprite-Compiler/issues"
 
 [project.scripts]
-pr32-sprite-compiler = "main:main"
+pr32-sprite-compiler = "pr32_sprite_compiler.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]
