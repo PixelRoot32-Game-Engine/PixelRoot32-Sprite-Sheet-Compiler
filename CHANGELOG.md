@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.3.1] - 2026-07-19
+
+### Fixed
+
+- **Packaged CLI entry point**: `pr32-sprite-compiler` now resolves to `pr32_sprite_compiler.cli:main` so pip installs no longer raise `ModuleNotFoundError: No module named 'main'`.
+- **CLI without GUI extras**: CLI/`--help` no longer imports the GUI at module load time.
+- **ttkbootstrap pin**: GUI extra constrained to `ttkbootstrap>=1.0.0,<2.0` for compatibility with `ttkbootstrap.scrolled`.
+
+### Added
+
+- **`python -m pr32_sprite_compiler`**: Module execution entry point for the same CLI/GUI launcher.
+
 ## [v0.3.0-dev] - 2026-02-02
 
 ### Added

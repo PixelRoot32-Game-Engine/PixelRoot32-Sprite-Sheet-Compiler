@@ -1,2 +1,2 @@
 [console_scripts]
-pr32-sprite-compiler = main:main
+pr32-sprite-compiler = pr32_sprite_compiler.cli:main
