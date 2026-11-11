@@ -90,7 +90,14 @@ def build_parser() -> argparse.ArgumentParser:
         default="layered",
         help="Export mode",
     )
-    parser.add_argument("--prefix", help="Prefix for the generated sprite names")
+    parser.add_argument(
+        "--prefix",
+        help=(
+            "Prefix for the generated sprite names. A prefix also makes the generated "
+            "arrays inline constexpr (single copy in flash across .cpp files), so use "
+            "a unique prefix per sprite sheet within a game"
+        ),
+    )
     return parser
 
 
