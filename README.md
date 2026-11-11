@@ -109,6 +109,8 @@ pr32-sprite-compiler `
   --out sprites_player.h
 ```
 
+Every generated header starts with `#pragma once`. With `--prefix`, the generated arrays are also emitted as `inline constexpr`, so the data is stored once in flash even when several `.cpp` files include the header; prefixes must therefore be unique per sprite sheet within a game. Without a prefix, the arrays stay `static const` (one copy per `.cpp` file that includes the header).
+
 ### Library/API Mode
 
 The compiler can be used as a Python library for integration into other tools.
