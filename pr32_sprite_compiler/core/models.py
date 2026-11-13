@@ -9,6 +9,7 @@ class SpriteDefinition:
     gw: int
     gh: int
     index: int
+    name: str = ""  # Optional C identifier; empty keeps the index-based symbols
 
 @dataclass
 class CompilationOptions:
