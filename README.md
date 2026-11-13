@@ -93,7 +93,7 @@ python main.py
 ### CLI Mode
 
 ```bash
-pr32-sprite-compiler INPUT.png   --grid WxH   [--prefix PREFIX]   [--offset X,Y]   --sprite gx,gy,gw,gh   [--out output_file.h]   [--mode {layered,2bpp,4bpp}]
+pr32-sprite-compiler INPUT.png   --grid WxH   [--prefix PREFIX]   [--offset X,Y]   --sprite gx,gy,gw,gh   [--sprite-name NAME ...]   [--out output_file.h]   [--mode {layered,2bpp,4bpp}]
 ```
 
 **Example:**
@@ -106,10 +106,14 @@ pr32-sprite-compiler `
   --offset 0,10 `
   --sprite 0,0,1,1 `
   --sprite 1,0,1,1 `
+  --sprite-name idle `
+  --sprite-name walk `
   --out sprites_player.h
 ```
 
 Every generated header starts with `#pragma once`. With `--prefix`, the generated arrays are also emitted as `inline constexpr`, so the data is stored once in flash even when several `.cpp` files include the header; prefixes must therefore be unique per sprite sheet within a game. Without a prefix, the arrays stay `static const` (one copy per `.cpp` file that includes the header).
+
+`--sprite-name` is optional and repeatable: give it once per `--sprite`, in the same order, to name each sprite's arrays instead of using the index (`PLAYER_idle_LAYER_0`, `PLAYER_walk_2BPP`, ...). Names must be unique C identifiers (`[A-Za-z_][A-Za-z0-9_]*`); the prefix still applies. Without `--sprite-name`, the index-based names (`PLAYER_SPRITE_0_LAYER_0`, ...) are kept unchanged.
 
 ### Library/API Mode
 
@@ -221,7 +225,7 @@ static const uint16_t PLAYER_SPRITE_0_LAYER_0[] = {
 };
 ```
 
-**Naming:** `[PREFIX]_SPRITE_<N>_<MODE>`
+**Naming:** `[PREFIX]_SPRITE_<N>_<MODE>` (or `[PREFIX]_<NAME>_<MODE>` when the sprite was given a `--sprite-name`)
 
 ---
 

@@ -11,6 +11,7 @@ from PIL import Image
 
 from pr32_sprite_compiler.core.exporter import Exporter
 from pr32_sprite_compiler.core.models import CompilationOptions, SpriteDefinition
+from pr32_sprite_compiler.core.naming import symbol_error
 
 
 def run_cli(args: argparse.Namespace) -> int:
@@ -50,6 +51,32 @@ def run_cli(args: argparse.Namespace) -> int:
                 print(f"ERROR: Invalid sprite format '{s_str}'. Use gx,gy,gw,gh")
                 return 1
 
+        names = args.sprite_name or []
+        if names:
+            if len(names) != len(sprites):
+                print(
+                    "ERROR: --sprite-name must be given once per --sprite "
+                    f"(got {len(names)} name(s) for {len(sprites)} sprite(s))."
+                )
+                return 1
+
+            seen = set()
+            for name in names:
+                reason = symbol_error(name)
+                if reason:
+                    print(f"ERROR: Invalid sprite name '{name}': {reason}")
+                    return 1
+                if name in seen:
+                    print(
+                        f"ERROR: Duplicate sprite name '{name}'. Sprite names become "
+                        "distinct symbols in the header, so they must be unique."
+                    )
+                    return 1
+                seen.add(name)
+
+            for s_def, name in zip(sprites, names):
+                s_def.name = name
+
         options = CompilationOptions(
             output_path=args.out,
             grid_w=gw,
@@ -82,6 +109,16 @@ def build_parser() -> argparse.ArgumentParser:
         "--sprite",
         action="append",
         help="Sprite definition (gx,gy,gw,gh). Can be used multiple times.",
+    )
+    parser.add_argument(
+        "--sprite-name",
+        action="append",
+        metavar="NAME",
+        help=(
+            "C identifier used for this sprite's arrays instead of the index "
+            "(SPRITE_<n>). Give one name per --sprite, in the same order. "
+            "Can be used multiple times."
+        ),
     )
     parser.add_argument("--out", default="sprites.h", help="Output header file (.h)")
     parser.add_argument(
