@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v0.5.0] - 2026-11-14
+
+### Added
+
+- **Per-sprite names for exported symbols**: `--sprite-name NAME` can be given once per `--sprite`, in the same order. A named sprite exports `{prefix}{name}_{LAYER_k|2BPP|4BPP}` instead of `{prefix}SPRITE_<n>_...`, so firmware symbols can be meaningful. Names are validated as C identifiers and must be unique, and the counts of `--sprite` and `--sprite-name` must match. A sheet without names keeps the index naming byte-for-byte, and the existing `#pragma once` / `inline constexpr` rules apply to the named arrays unchanged.
+
 ## [v0.4.0] - 2026-11-11
 
 ### Added
