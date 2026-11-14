@@ -50,6 +50,16 @@ class Exporter:
         return None
 
     @staticmethod
+    def _symbol_stem(s_def: SpriteDefinition) -> str:
+        """Symbol stem for a sprite: its name when set, otherwise SPRITE_<index>.
+
+        A named sprite exports `{prefix}{name}_LAYER_k` / `{prefix}{name}_2BPP` /
+        `{prefix}{name}_4BPP`; an unnamed one keeps the index-based form.
+        """
+        name = (s_def.name or "").strip()
+        return name or f"SPRITE_{s_def.index}"
+
+    @staticmethod
     def _array_storage(name_prefix: str) -> str:
         """Storage keyword for namespace-scope arrays.
 
@@ -135,10 +145,12 @@ class Exporter:
                 
                 f.write(f"// Sprite {s_def.index} Dimensions: {w}x{h}\n")
 
+                stem = Exporter._symbol_stem(s_def)
+
                 if options.mode == "layered":
                     for layer, color in enumerate(colors):
                         bits = compiler.sprite_to_bits(sprite, color)
-                        name = f"{prefix}SPRITE_{s_def.index}_LAYER_{layer}"
+                        name = f"{prefix}{stem}_LAYER_{layer}"
                         f.write(f"{storage} uint16_t {name}[] = {{\n")
                         for row in bits:
                             for word in row:
@@ -147,7 +159,7 @@ class Exporter:
                 
                 elif options.mode == "2bpp":
                     bits = compiler.pack_2bpp(sprite, palette_map)
-                    name = f"{prefix}SPRITE_{s_def.index}_2BPP"
+                    name = f"{prefix}{stem}_2BPP"
                     f.write(f"{storage} uint16_t {name}[] = {{\n")
                     for row in bits:
                         for word in row:
@@ -156,7 +168,7 @@ class Exporter:
 
                 elif options.mode == "4bpp":
                     bits = compiler.pack_4bpp(sprite, palette_map)
-                    name = f"{prefix}SPRITE_{s_def.index}_4BPP"
+                    name = f"{prefix}{stem}_4BPP"
                     f.write(f"{storage} uint16_t {name}[] = {{\n")
                     for row in bits:
                         for word in row:
